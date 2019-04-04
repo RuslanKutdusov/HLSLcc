@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.8)
 project(HLSLcc)
 
 option(HLSLCC_LIBRARY_SHARED "Build shared library instead of static." ON)
+option(HLSLCC_EXECUTABLE "Build as executable." ON)
 
 file(GLOB HLSLCC_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
 set(HLSLCC_SRC
@@ -34,11 +35,13 @@ set(HLSLCC_SRC
 		src/cbstring/bstraux.c
 		src/cbstring/bstrlib.c)
 
-if(HLSLCC_LIBRARY_SHARED)
+if(HLSLCC_EXECUTABLE)
+	add_executable(hlslcc ${HLSLCC_SRC} src/Main.cpp)
+elseif(HLSLCC_LIBRARY_SHARED)
 	add_library(hlslcc SHARED ${HLSLCC_SRC})
 else(HLSLCC_LIBRARY_SHARED)
 	add_library(hlslcc STATIC ${HLSLCC_SRC})
-endif(HLSLCC_LIBRARY_SHARED)
+endif(HLSLCC_EXECUTABLE)
 
 target_include_directories(hlslcc
     PUBLIC
@@ -61,4 +64,6 @@ install(TARGETS hlslcc
     PUBLIC_HEADER DESTINATION include/hlslcc)
 install(FILES ${HLSLCC_HDRS} DESTINATION include/hlslcc)
 install(EXPORT hlslccConfig DESTINATION share/hlslcc/cmake)
-export(TARGETS hlslcc FILE hlslccConfig.cmake)
+if(NOT HLSLCC_EXECUTABLE)
+	export(TARGETS hlslcc FILE hlslccConfig.cmake)
+endif(NOT HLSLCC_EXECUTABLE)
